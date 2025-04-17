@@ -3,9 +3,9 @@ package main
 import (
 	"net/http"
 
-	"github.com/roman-mazur/architecture-lab-3/painter"
-	"github.com/roman-mazur/architecture-lab-3/painter/lang"
-	"github.com/roman-mazur/architecture-lab-3/ui"
+	"github.com/deLordeee/KPI_Lab3/lang"
+	"github.com/deLordeee/KPI_Lab3/painter"
+	"github.com/deLordeee/KPI_Lab3/ui"
 )
 
 func main() {
@@ -18,7 +18,7 @@ func main() {
 	)
 
 	//pv.Debug = true
-	pv.Title = "Simple painter"
+	pv.Title = "Ultra-Sigma-Painter-Lab3"
 
 	pv.OnScreenReady = opLoop.Start
 	opLoop.Receiver = &pv
