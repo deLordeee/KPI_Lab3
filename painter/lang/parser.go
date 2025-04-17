@@ -77,17 +77,26 @@ func (p *Parser) resetState() {
 }
 
 func (p *Parser) parse(commandLine string) error {
-	parts := strings.Split(commandLine, " ")
-	instruction := parts[0]
-	var args []string
-	if len(parts) > 1 {
-		args = parts[1:]
+	commandLine = strings.TrimSpace(commandLine)
+	if commandLine == "" {
+		return nil 
 	}
+
+	parts := strings.Fields(commandLine)
+	if len(parts) == 0 {
+		return nil 
+	}
+
+	instruction := parts[0]
+	args := parts[1:]
+
 	var iArgs []int
 	for _, arg := range args {
 		i, err := strconv.Atoi(arg)
 		if err == nil {
 			iArgs = append(iArgs, i)
+		} else {
+			return fmt.Errorf("invalid argument '%s' for command '%s'", arg, instruction)
 		}
 	}
 
@@ -99,7 +108,7 @@ func (p *Parser) parse(commandLine string) error {
 	case "bgrect":
 		p.lastBgRect = &painter.BgRectangle{X1: iArgs[0], Y1: iArgs[1], X2: iArgs[2], Y2: iArgs[3]}
 	case "figure":
-		clr := color.RGBA{R: 205, A: 255}
+		clr := color.RGBA{R: 255, G: 255, A: 255}
 		figure := painter.Figure{X: iArgs[0], Y: iArgs[1], C: clr}
 		p.figures = append(p.figures, &figure)
 	case "move":
