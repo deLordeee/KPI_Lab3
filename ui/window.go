@@ -135,7 +135,7 @@ func (pw *Visualizer) handleEvent(e any, tex screen.Texture) {
 
 
 func (pw *Visualizer) drawDefaultUI() {
-	pw.window.Fill(pw.currentSize.Bounds(), color.RGBA{G: 255, A: 255}, draw.Src)
+	pw.window.Fill(pw.currentSize.Bounds(), color.RGBA{G: 205, A: 255}, draw.Src)
 
 	x, y := 400, 400
 	if pw.clickPos != (image.Point{}) {
