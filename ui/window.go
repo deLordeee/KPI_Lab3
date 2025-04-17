@@ -21,52 +21,57 @@ type Visualizer struct {
 	Debug         bool
 	OnScreenReady func(s screen.Screen)
 
-	w    screen.Window
-	tx   chan screen.Texture
-	done chan struct{}
+	
+	window      screen.Window
+	textureChan chan screen.Texture
+	quitChan    chan struct{}
 
-	sz  size.Event
-	pos image.Rectangle
+
+	currentSize size.Event
+	drawRect    image.Rectangle
+	clickPos    image.Point
 }
 
 func (pw *Visualizer) Main() {
-	pw.tx = make(chan screen.Texture)
-	pw.done = make(chan struct{})
-	pw.pos.Max.X = 200
-	pw.pos.Max.Y = 200
+	pw.textureChan = make(chan screen.Texture)
+	pw.quitChan = make(chan struct{})
+	pw.drawRect.Max.X = 200
+	pw.drawRect.Max.Y = 200
 	driver.Main(pw.run)
 }
 
 func (pw *Visualizer) Update(t screen.Texture) {
-	pw.tx <- t
+	pw.textureChan <- t
 }
 
 func (pw *Visualizer) run(s screen.Screen) {
-	w, err := s.NewWindow(&screen.NewWindowOptions{
-		Title: pw.Title,
+	win, err := s.NewWindow(&screen.NewWindowOptions{
+		Title:  pw.Title,
+		Width:  800,
+		Height: 800,
 	})
 	if err != nil {
-		log.Fatal("Failed to initialize the app window:", err)
+		log.Fatal("Failed to initialize window:", err)
 	}
 	defer func() {
-		w.Release()
-		close(pw.done)
+		win.Release()
+		close(pw.quitChan)
 	}()
 
 	if pw.OnScreenReady != nil {
 		pw.OnScreenReady(s)
 	}
 
-	pw.w = w
+	pw.window = win
 
 	events := make(chan any)
 	go func() {
 		for {
-			e := w.NextEvent()
+			e := win.NextEvent()
 			if pw.Debug {
-				log.Printf("new event: %v", e)
+				log.Printf("Event received: %v", e)
 			}
-			if detectTerminate(e) {
+			if pw.shouldQuit(e) {
 				close(events)
 				break
 			}
@@ -74,7 +79,7 @@ func (pw *Visualizer) run(s screen.Screen) {
 		}
 	}()
 
-	var t screen.Texture
+	var currentTex screen.Texture
 
 	for {
 		select {
@@ -82,10 +87,10 @@ func (pw *Visualizer) run(s screen.Screen) {
 			if !ok {
 				return
 			}
-			pw.handleEvent(e, t)
+			pw.handleEvent(e, currentTex)
 
-		case t = <-pw.tx:
-			w.Send(paint.Event{})
+		case currentTex = <-pw.textureChan:
+			win.Send(paint.Event{})
 		}
 	}
 }
