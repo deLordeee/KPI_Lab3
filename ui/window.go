@@ -95,53 +95,59 @@ func (pw *Visualizer) run(s screen.Screen) {
 	}
 }
 
-func detectTerminate(e any) bool {
+func (pw *Visualizer) detectTerminate(e any) bool {
 	switch e := e.(type) {
 	case lifecycle.Event:
 		if e.To == lifecycle.StageDead {
-			return true // Window destroy initiated.
+			return true
 		}
 	case key.Event:
 		if e.Code == key.CodeEscape {
-			return true // Esc pressed.
+			return true
 		}
 	}
 	return false
 }
 
-func (pw *Visualizer) handleEvent(e any, t screen.Texture) {
+func (pw *Visualizer) handleEvent(e any, tex screen.Texture) {
 	switch e := e.(type) {
-
-	case size.Event: // Оновлення даних про розмір вікна.
-		pw.sz = e
+	case size.Event:
+		pw.currentSize = e
 
 	case error:
 		log.Printf("ERROR: %s", e)
 
 	case mouse.Event:
-		if t == nil {
-			// TODO: Реалізувати реакцію на натискання кнопки миші.
+		if e.Button == mouse.ButtonRight && e.Direction == mouse.DirPress {
+			pw.clickPos = image.Point{X: int(e.X), Y: int(e.Y)}
+			pw.window.Send(paint.Event{})
 		}
 
 	case paint.Event:
-		// Малювання контенту вікна.
-		if t == nil {
+		if tex == nil {
 			pw.drawDefaultUI()
 		} else {
-			// Використання текстури отриманої через виклик Update.
-			pw.w.Scale(pw.sz.Bounds(), t, t.Bounds(), draw.Src, nil)
+			pw.window.Scale(pw.currentSize.Bounds(), tex, tex.Bounds(), draw.Src, nil)
 		}
-		pw.w.Publish()
+		pw.window.Publish()
 	}
 }
 
+
 func (pw *Visualizer) drawDefaultUI() {
-	pw.w.Fill(pw.sz.Bounds(), color.Black, draw.Src) // Фон.
+	pw.window.Fill(pw.currentSize.Bounds(), color.RGBA{G: 255, A: 255}, draw.Src)
 
-	// TODO: Змінити колір фону та додати відображення фігури у вашому варіанті.
-
-	// Малювання білої рамки.
-	for _, br := range imageutil.Border(pw.sz.Bounds(), 10) {
-		pw.w.Fill(br, color.White, draw.Src)
+	x, y := 400, 400
+	if pw.clickPos != (image.Point{}) {
+		x, y = pw.clickPos.X, pw.clickPos.Y
 	}
+
+	barWidth := 125
+	verticalBar := image.Rect(x-barWidth/2, y, x+barWidth/2, y+200)
+
+	horizontalWidth := 400
+	horizontalBar := image.Rect(x-horizontalWidth/2, y-150, x+horizontalWidth/2, y)
+
+	pw.window.Fill(verticalBar, color.RGBA{R: 255, G: 255, A: 255}, draw.Src)
+	pw.window.Fill(horizontalBar, color.RGBA{R: 255, G: 255, A: 255}, draw.Src)
 }
