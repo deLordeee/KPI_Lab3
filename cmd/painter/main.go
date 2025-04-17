@@ -2,9 +2,8 @@ package main
 
 import (
 	"net/http"
-
-	"github.com/deLordeee/KPI_Lab3/lang"
 	"github.com/deLordeee/KPI_Lab3/painter"
+	"github.com/deLordeee/KPI_Lab3/painter/lang"
 	"github.com/deLordeee/KPI_Lab3/ui"
 )
 
