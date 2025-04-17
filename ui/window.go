@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"golang.org/x/exp/shiny/driver"
-	"golang.org/x/exp/shiny/imageutil"
+	
 	"golang.org/x/exp/shiny/screen"
 	"golang.org/x/image/draw"
 	"golang.org/x/mobile/event/key"
@@ -71,7 +71,7 @@ func (pw *Visualizer) run(s screen.Screen) {
 			if pw.Debug {
 				log.Printf("Event received: %v", e)
 			}
-			if pw.shouldQuit(e) {
+			if pw.detectTerminate(e) {
 				close(events)
 				break
 			}
