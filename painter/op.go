@@ -46,7 +46,7 @@ func WhiteFill(t screen.Texture) {
 
 // GreenFill зафарбовує тестуру у зелений колір. Може бути викоистана як Operation через OperationFunc(GreenFill).
 func GreenFill(t screen.Texture) {
-	t.Fill(t.Bounds(), color.RGBA{G: 0xff, A: 0xff}, screen.Src)
+	t.Fill(t.Bounds(), color.RGBA{G: 205, A: 255}, screen.Src)
 }
 
 type BgRectangle struct {
