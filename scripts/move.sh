@@ -1,7 +1,9 @@
 #!/bin/bash
 
-Xstart=400
-Ystart=100
+Xstart=400      
+Ystart=100     
+Xend=650       
+Yend=650       
 step=20
 
 curl -X POST http://localhost:17000 -d "reset"
@@ -13,12 +15,41 @@ curl -X POST http://localhost:17000 -d "update"
 
 while true; do
     curl -X POST http://localhost:17000 -d "update"
-    for ((i = 0; i < 280; i += step)); do
-        curl -X POST http://localhost:17000 -d "move $((-step)) $((step))"
+
+
+    for ((Y=$Ystart; Y <= $Yend; Y+=step)); do
+        curl -X POST http://localhost:17000 -d "move 0 $step"
         curl -X POST http://localhost:17000 -d "update"
     done
-    for ((i = 600; i < 900; i += step)); do
-        curl -X POST http://localhost:17000 -d "move $step $((-step))"
+
+
+    for ((X=$Xstart; X <= $Xend; X+=step)); do
+        curl -X POST http://localhost:17000 -d "move $step 0"
         curl -X POST http://localhost:17000 -d "update"
+    done
+
+    
+    while [ $X -gt $Xstart ]; do
+        curl -X POST http://localhost:17000 -d "move $((-step)) 0"
+        curl -X POST http://localhost:17000 -d "update"
+        X=$((X - step))
+    done
+    while [ $Y -gt $Ystart ]; do
+        curl -X POST http://localhost:17000 -d "move 0 $((-step))"
+        curl -X POST http://localhost:17000 -d "update"
+        Y=$((Y - step))
+    done
+
+   
+    for ((X=$Xstart; X >= $Xstart - 200; X-=step)); do
+        curl -X POST http://localhost:17000 -d "move $((-step)) 0"
+        curl -X POST http://localhost:17000 -d "update"
+    done
+
+    
+    while [ $X -lt $Xstart ]; do
+        curl -X POST http://localhost:17000 -d "move $step 0"
+        curl -X POST http://localhost:17000 -d "update"
+        X=$((X + step))
     done
 done
